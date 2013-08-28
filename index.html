@@ -121,10 +121,10 @@
         if (e.drawingMode == BMAP_DRAWING_CIRCLE || e.drawingMode == BMAP_DRAWING_POLYGON || e.drawingMode == BMAP_DRAWING_RECTANGLE)
         {
             var overlaybound = e.overlay.getBounds();
-            swLng = overlaybound.getSouthWest().lng;
-            swLat = overlaybound.getSouthWest().lat;
-            neLng = overlaybound.getNorthEast().lng;
-            neLat = overlaybound.getNorthEast().lat;
+            swLng = overlaybound.getSouthWest().lng-0.01;   //手动修改大小可以再测试一下
+            swLat = overlaybound.getSouthWest().lat-0.01;   //不一定是0.01
+            neLng = overlaybound.getNorthEast().lng+0.01;   //以能覆盖纠偏误差为准
+            neLat = overlaybound.getNorthEast().lat+0.01;
         }
         else
         {
@@ -174,10 +174,10 @@
         var viewbounds = map.getBounds();
         var southwestPoint = viewbounds.getSouthWest();
         var northeastPoint = viewbounds.getNorthEast();
-        var minLat = southwestPoint.lat;
-        var minLng = southwestPoint.lng;
-        var maxLat = northeastPoint.lat;
-        var maxLng = northeastPoint.lng;
+        var minLat = southwestPoint.lat;        
+        var minLng = southwestPoint.lng;        
+        var maxLat = northeastPoint.lat;        
+        var maxLng = northeastPoint.lng;        
         var deviceTypeStr = "";
         $('[name=deviceType]:checkbox').each(function()
         {
