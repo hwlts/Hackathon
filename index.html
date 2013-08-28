@@ -1,0 +1,314 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.5&ak=E1f193d1835b7d3e933e5e56d17500f9"></script>
+
+    <!--加载鼠标绘制工具-->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+
+    <link rel="stylesheet" href="http://yui.yahooapis.com/pure/0.2.1/pure-min.css">
+
+    <script type="text/javascript" src="js/jquery-2.0.3.js"></script>
+</head>
+<body>
+<div id="all" style="width: 100%; height: 100%;">
+    <div id="map" style="float: left; width: 65%; height: 100%;">
+    </div>
+    <div id="controller" style="float: right; width: 35%; height: 100%; background: #DDDDDD">
+        <h3 align="center">商户工具面板</h3>
+
+        <form class="pure-form pure-g">
+            <blockquote>
+                机型
+            </blockquote>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" id="deviceType_All" checked="checked"/>全选</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="deviceType" value="iphone" checked="checked"/>苹果</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="deviceType" value="android" checked="checked"/>安卓</p>
+            </div>
+            <br>
+            <blockquote>
+                口味:
+            </blockquote>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">  <input type="checkbox" id="cate_All" checked="checked">全选</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1"> <input type="checkbox" name="cate" value="电影" checked="checked" />电影</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1"><input type="checkbox" name="cate" value="火锅" checked="checked"/>火锅</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1"> <input type="checkbox" name="cate" value="面包甜点" checked="checked"/>面包甜点</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">  <input type="checkbox" name="cate" value="日韩料理" checked="checked"/>日韩料理</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">  <input type="checkbox" name="cate" value="小吃快餐" checked="checked"/>小吃快餐</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">  <input type="checkbox" name="cate" value="本帮江浙菜" checked="checked"/>本帮江浙菜</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1"> <input type="checkbox" name="cate" value="川菜" checked="checked"/>川菜</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">   <input type="checkbox" name="cate" value="西餐" checked="checked"/>西餐</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">   <input type="checkbox" name="cate" value="粤菜" checked="checked"/>粤菜</p>
+            </div>
+            <div class="pure-u-1-4">
+                <p class="pure-input-1">   <input type="checkbox" name="cate" value="KTV" checked="checked"/>KTV</p>
+            </div>
+            <br>
+            <blockquote>
+                消费区间
+            </blockquote>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox"  id="price_All" checked="checked">全选</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="price" value="1" checked="checked"/>低</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="price" value="2" checked="checked"/>中</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="price" value="3" checked="checked"/>高</p>
+            </div>
+            <div class="pure-u-1-6">
+                <p class="pure-input-1"> <input type="checkbox" name="price" value="4" checked="checked"/>超高</p>
+            </div>
+            <br>
+        </form>
+	广告标题：<br>
+	<textarea id="ad_title" cols="40" rows="1"></textarea><br>
+        广告内容：<br>
+        <textarea id="ad_content" cols="40" rows="5"></textarea>
+        <br>
+
+        <input type="button" id="reset_view" value="刷新显示"/>
+        <input type="button" id="sub_select" value="提交广告设置"/>
+        <input type="button" id="sub_clear" value="清除"/>
+        <br>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // 百度地图API功能
+    var map = new BMap.Map('map');
+    map.centerAndZoom(new BMap.Point(121.4215865,31.225), 16);
+    map.enableScrollWheelZoom();
+
+    var overlays = [];
+    var swLng;
+    var swLat;
+    var neLng;
+    var neLat;
+
+    //回调获得覆盖物信息
+    var overlaycomplete = function(e)
+    {
+        overlays.push(e.overlay);
+        if (e.drawingMode == BMAP_DRAWING_CIRCLE || e.drawingMode == BMAP_DRAWING_POLYGON || e.drawingMode == BMAP_DRAWING_RECTANGLE)
+        {
+            var overlaybound = e.overlay.getBounds();
+            swLng = overlaybound.getSouthWest().lng;
+            swLat = overlaybound.getSouthWest().lat;
+            neLng = overlaybound.getNorthEast().lng;
+            neLat = overlaybound.getNorthEast().lat;
+        }
+        else
+        {
+            swLng = null;
+            swLat = null;
+            neLng = null;
+            neLat = null;
+        }
+    };
+
+    var styleOptions =
+    {
+        strokeColor:"red",    //边线颜色。
+        fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 3,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid' //边线的样式，solid或dashed。
+    };
+
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map,
+            {
+                isOpen: false, //是否开启绘制模式
+                enableDrawingTool: true, //是否显示工具栏
+                drawingToolOptions:
+                {
+                    anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+                    offset: new BMap.Size(5, 5), //偏离值
+                    scale: 0.8 //工具栏缩放比例
+                },
+                circleOptions: styleOptions, //圆的样式
+                polylineOptions: styleOptions, //线的样式
+                polygonOptions: styleOptions, //多边形的样式
+                rectangleOptions: styleOptions //矩形的样式
+            });
+
+    //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+    map.addEventListener('dragend',RefreshView);
+
+    map.addEventListener('zoomend',RefreshView);
+
+    function RefreshView()
+    {
+        var viewbounds = map.getBounds();
+        var southwestPoint = viewbounds.getSouthWest();
+        var northeastPoint = viewbounds.getNorthEast();
+        var minLat = southwestPoint.lat;
+        var minLng = southwestPoint.lng;
+        var maxLat = northeastPoint.lat;
+        var maxLng = northeastPoint.lng;
+        var deviceTypeStr = "";
+        $('[name=deviceType]:checkbox').each(function()
+        {
+            var temp = (this.checked) ? (this.value+',') : "";
+            deviceTypeStr += temp;
+        });
+        var deviceTypeResStr = deviceTypeStr.substring(0,deviceTypeStr.length-1);
+        var cateStr = "";
+        $('[name=cate]:checkbox').each(function()
+        {
+            var temp = (this.checked) ? (this.value+',') : "";
+            cateStr += temp;
+        });
+        var cateResStr = cateStr.substring(0,cateStr.length-1);
+        var priceStr = "";
+        $('[name=price]:checkbox').each(function()
+        {
+            var temp = (this.checked) ? (this.value+',') : "";
+            priceStr += temp;
+        });
+        var priceResStr = priceStr.substring(0,priceStr.length-1);
+        var conditionStr = minLat+','+minLng+';'
+                          +maxLat+','+maxLng+';'
+                          +deviceTypeResStr+";"
+                          +cateResStr+";"
+                          +priceResStr;
+	//alert(conditionStr);
+	//$("#ad_content").val(conditionStr);
+        $.post("http://192.168.33.95/argus/filter",
+                {
+                    condition:conditionStr
+                },
+                function(data)
+                {
+			map.clearOverlays();
+			showCircles(data);
+                }
+        );
+    }
+    
+    RefreshView();
+	
+    $("#sub_clear").click(function()
+    {
+    	for(var i = 0; i < overlays.length; ++i)
+	{
+	    map.removeOverlay(overlays[i]);
+	}
+	overlays.length = 0;
+    });
+
+    $("#reset_view").click(function()
+    {
+	RefreshView();    
+    });
+
+    $("#sub_select").click(function()
+    {
+       
+	 if(overlays.length == 0)
+	{
+	    alert("请至少选择一块区域！");
+        }
+	else if (overlays.length > 1)
+	{
+	    alert("请不要选择多块区域！");
+	}
+	else if (swLat == null)
+	{
+	    alert("请选择闭合区域");
+	}
+	else
+	{
+	    var tagStr = "";
+	    /*
+	    $('[name=deviceType]:checkbox').each(function()
+	    {
+		var temp = (this.checked) ? (this.value+',') : "";
+		tagStr += temp;
+    	    });
+	    $('[name=cate]:checkbox').each(function()
+	    {
+		var temp = (this.checked) ? (this.value+',') : "";
+		tagStr += temp;
+	    });
+	    $('[name=price]:checkbox').each(function()
+	    {
+		var temp = (this.checked) ? (this.value+',') : "";
+		tagStr += temp;
+    	    });
+	    //alert(tagStr);
+	    */
+	    var ch = $("input[checked]");
+	    $(ch).each(function()
+	    {
+		tagStr += this.value;
+	    });
+	    //alert(tagStr);
+	    var sendTag = "";
+	    if (tagStr.indexOf("3") != -1)
+	    	sendTag += "0,1,";
+	    if (tagStr.indexOf("1") != -1)
+		sendTag += "2,3,";
+	    var ResStr = sendTag.substring(0,sendTag.length-1);
+	    alert(ResStr);
+	    Submit_Ad(ResStr);
+	}
+    });
+
+    function Submit_Ad(strArgu)
+    {
+	$.post("http://192.168.33.95/argus/add",
+	    {
+		shopId:1000,
+		title:$("#ad_title").val(),
+		content:$("#ad_content").val(),
+		beginTime:(new Date()).valueOf(),
+		endTime:(new Date()).valueOf(),
+		maxLat:neLat,
+		maxLng:neLng,
+		minLat:swLat,
+		minLng:swLng,
+		tag:strArgu	
+ 	    },
+	    function(data)
+	    {
+		alert(data);
+	    }); 
+    }
+</script>
+<script type="text/javascript" src="js/checkbox.js"></script>
+<script type="text/javascript" src="js/showCircles.js"></script>
+</body>
+</html>
