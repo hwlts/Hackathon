@@ -204,8 +204,6 @@
                           +deviceTypeResStr+";"
                           +cateResStr+";"
                           +priceResStr;
-	//alert(conditionStr);
-	//$("#ad_content").val(conditionStr);
         $.post("http://192.168.33.95/argus/filter",
                 {
                     condition:conditionStr
@@ -257,7 +255,6 @@
 	    {
 		tagStr += this.value;
 	    });
-	    //alert(tagStr);
 	    var sendTag = "";
 	    if (tagStr.indexOf("4") != -1)
 	    	sendTag += "0,";
@@ -268,7 +265,7 @@
         if (tagStr.indexOf("1") != -1)
             sendTag += "3,"
 	    var ResStr = sendTag.substring(0,sendTag.length-1);
-	    alert(ResStr);
+	    //alert(ResStr);
 	    Submit_Ad(ResStr);
 	}
     });
