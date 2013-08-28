@@ -252,35 +252,21 @@
 	else
 	{
 	    var tagStr = "";
-	    /*
-	    $('[name=deviceType]:checkbox').each(function()
-	    {
-		var temp = (this.checked) ? (this.value+',') : "";
-		tagStr += temp;
-    	    });
-	    $('[name=cate]:checkbox').each(function()
-	    {
-		var temp = (this.checked) ? (this.value+',') : "";
-		tagStr += temp;
-	    });
-	    $('[name=price]:checkbox').each(function()
-	    {
-		var temp = (this.checked) ? (this.value+',') : "";
-		tagStr += temp;
-    	    });
-	    //alert(tagStr);
-	    */
-	    var ch = $("input[checked]");
-	    $(ch).each(function()
+	    var ch = $("input:checked");
+        $(ch).each(function()
 	    {
 		tagStr += this.value;
 	    });
 	    //alert(tagStr);
 	    var sendTag = "";
-	    if (tagStr.indexOf("3") != -1)
-	    	sendTag += "0,1,";
-	    if (tagStr.indexOf("1") != -1)
-		sendTag += "2,3,";
+	    if (tagStr.indexOf("4") != -1)
+	    	sendTag += "0,";
+        if (tagStr.indexOf("3") != -1)
+            sendTag += "1,";
+	    if (tagStr.indexOf("2") != -1)
+		    sendTag += "2,";
+        if (tagStr.indexOf("1") != -1)
+            sendTag += "3,"
 	    var ResStr = sendTag.substring(0,sendTag.length-1);
 	    alert(ResStr);
 	    Submit_Ad(ResStr);
